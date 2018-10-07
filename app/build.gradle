@@ -13,7 +13,14 @@ android {
             standardOutput = stdout
         }
         def splittedArr = stdout.toString().trim().split('-')
-        return splittedArr[0] + '.' + splittedArr[1];
+        def len = splittedArr.length
+        def patch
+        if (len > 1) {
+            patch = splittedArr[1]
+        } else {
+            patch = '0'
+        }
+        return splittedArr[0] + '.' + patch
     }
 
     def getVersionCode = { ->
