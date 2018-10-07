@@ -6,6 +6,25 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
+    def getVersionName = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags'
+            standardOutput = stdout
+        }
+        def splittedArr = stdout.toString().trim().split('-')
+        return splittedArr[0] + '.' + splittedArr[1];
+    }
+
+    def getVersionCode = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-list', 'HEAD', '--count'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim().toInteger();
+    }
+
     signingConfigs {
         signing {
             keyAlias keystoreProperties['keyAlias']
@@ -19,8 +38,8 @@ android {
         applicationId "com.example.eugene_kachanouski.softwaredesignproject"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 3
-        versionName "0.1.4"
+        versionCode getVersionCode()
+        versionName getVersionName()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
