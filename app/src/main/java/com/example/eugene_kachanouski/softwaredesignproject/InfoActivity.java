@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class InfoActivity extends AppCompatActivity {
 
     private final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 0;
     private String ALLOW_READ_PHONE_STATE;
@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_info);
 
         // Initializing permission const
         ALLOW_READ_PHONE_STATE = getResources().getString(R.string.allowReadPhoneState);
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 dialogBuilder.setCancelable(false);
                 dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ActivityCompat.requestPermissions(MainActivity.this,
+                        ActivityCompat.requestPermissions(InfoActivity.this,
                                 new String[]{Manifest.permission.READ_PHONE_STATE},
                                 PERMISSIONS_REQUEST_READ_PHONE_STATE);
                     }
