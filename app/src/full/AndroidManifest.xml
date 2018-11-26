@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <activity android:name="com.example.eugene_kachanouski.softwaredesignproject.InfoActivity"
+        <activity android:name="com.example.eugene_kachanouski.softwaredesignproject.StartingActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" />
     </application>
