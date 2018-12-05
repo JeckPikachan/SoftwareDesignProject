@@ -15,6 +15,13 @@
     <string name="hello_profile_fragment">Hello profile fragment</string>
     <string name="hello_some_fragment">Hello some fragment</string>
 
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    <string name="save_profile_data">Save</string>
+    <string name="edit_profile_data">Edit</string>
+
     <string name="default_first_name">Eugene</string>
     <string name="default_last_name">Kachanouski</string>
     <string name="default_email">me@gmail.com</string>

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -12,7 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 /**
@@ -64,21 +69,76 @@ public class ProfileFragment extends Fragment {
 
     private void setProfileData(View view) {
         Context context = getActivity();
-        ProfileData profileData = (new ProfileService()).getProfileData(context, this);
+        ProfileData profileData = ProfileService.getProfileData(context, this);
 
-        ((TextView) view.findViewById(R.id.fullNameTextView)).setText(profileData.fullName);
+        ((TextView) view.findViewById(R.id.fullNameTextView)).setText(profileData.firstName + ' ' + profileData.lastName);
         ((TextView) view.findViewById(R.id.emailTextView)).setText(profileData.email);
         ((TextView) view.findViewById(R.id.phoneTextView)).setText(profileData.phone);
     }
 
     private void setEditButtonOnClickListener(View view) {
         view.findViewById(R.id.editButton).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
-                Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_editProfileFragment);
+            public void onClick(View v) {
+                View fragmentView = getView();
+                ViewSwitcher viewSwitcher = fragmentView.findViewById(R.id.profile_data_view_switcher);
+                View nextView = viewSwitcher.getNextView();
+
+                switch (nextView.getId()) {
+                    case R.id.profile_data_view_layout:
+                        setEditableLayout(fragmentView, false);
+                        break;
+                    case R.id.profile_data_edit_layout:
+                        setEditableLayout(fragmentView, true);
+                        break;
+                }
+
+                viewSwitcher.showNext();
             }
         });
     }
+
+    private void setEditableLayout(View view, boolean isOn) {
+        FloatingActionButton fab = view.findViewById(R.id.editButton);
+        fab.setImageDrawable(
+                isOn
+                        ? ContextCompat.getDrawable(getContext(), R.drawable.ic_save_black_24dp)
+                        : ContextCompat.getDrawable(getContext(), R.drawable.ic_edit_black_24dp)
+        );
+
+        EditText firstNameEditText = view.findViewById(R.id.first_name_edit_text);
+        EditText lastNameEditText = view.findViewById(R.id.last_name_edit_text);
+        EditText emailEditText = view.findViewById(R.id.email_edit_text);
+        EditText phoneEditText = view.findViewById(R.id.phone_edit_text);
+
+        View profileDataEditLayout = view.findViewById(R.id.profile_data_edit_layout);
+        ViewGroup.LayoutParams params = profileDataEditLayout.getLayoutParams();
+
+        if (isOn) {
+            ProfileData profileData = ProfileService.getProfileData(getContext(), this);
+
+            firstNameEditText.setText(profileData.firstName);
+            lastNameEditText.setText(profileData.lastName);
+            emailEditText.setText(profileData.email);
+            phoneEditText.setText(profileData.phone);
+
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        } else {
+            ProfileData newProfileData = new ProfileData(
+                    firstNameEditText.getText().toString(),
+                    lastNameEditText.getText().toString(),
+                    emailEditText.getText().toString(),
+                    phoneEditText.getText().toString()
+            );
+
+            ProfileService.setProfileData(getContext(), this, newProfileData);
+            setProfileData(view);
+
+            params.height = 0;
+        }
+
+        profileDataEditLayout.setLayoutParams(params);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

@@ -82,4 +82,6 @@ public class StartingActivity extends AppCompatActivity
 //        drawer.closeDrawer(GravityCompat.START);
         return navigated;
     }
+
+    
 }
