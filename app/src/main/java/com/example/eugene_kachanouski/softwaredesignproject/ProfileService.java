@@ -2,6 +2,8 @@ package com.example.eugene_kachanouski.softwaredesignproject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.widget.FrameLayout;
 
 import androidx.fragment.app.Fragment;
 
@@ -30,5 +32,22 @@ public class ProfileService {
         editor.putString(fragment.getString(R.string.profile_phone_key), profileData.phone);
 
         editor.apply();
+    }
+
+    public static void saveAvatarImageUri(Context context, Fragment fragment, Uri uri) {
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                fragment.getString(R.string.profile_preferences_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(fragment.getString(R.string.profile_avatar_uri_key), uri.toString());
+
+        editor.apply();
+    }
+
+    public static Uri getAvatarImageUri(Context context, Fragment fragment) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                fragment.getString(R.string.profile_preferences_key), Context.MODE_PRIVATE);
+
+        return Uri.parse(sharedPreferences.getString(fragment.getString(R.string.profile_avatar_uri_key), ""));
     }
 }
