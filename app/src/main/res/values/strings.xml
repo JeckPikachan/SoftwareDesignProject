@@ -27,6 +27,8 @@
     <string name="default_email">me@gmail.com</string>
     <string name="default_phone">8 800 555 35 35</string>
 
+    <string name="change_photo">CHANGE PHOTO</string>
+
     <string name="profile_preferences_key">com.example.eugene_kachanouski.softwaredesignproject.profile_preferences_key</string>
     <string name="profile_first_name_key">com.example.eugene_kachanouski.softwaredesignproject.profile_first_name_key</string>
     <string name="profile_last_name_key">com.example.eugene_kachanouski.softwaredesignproject.profile_last_name_key</string>

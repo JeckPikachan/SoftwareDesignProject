@@ -113,6 +113,8 @@ public class ProfileFragment extends Fragment {
         View profileDataEditLayout = view.findViewById(R.id.profile_data_edit_layout);
         ViewGroup.LayoutParams params = profileDataEditLayout.getLayoutParams();
 
+        View changePhotoLayout = view.findViewById(R.id.change_photo_layout);
+
         if (isOn) {
             ProfileData profileData = ProfileService.getProfileData(getContext(), this);
 
@@ -120,6 +122,8 @@ public class ProfileFragment extends Fragment {
             lastNameEditText.setText(profileData.lastName);
             emailEditText.setText(profileData.email);
             phoneEditText.setText(profileData.phone);
+
+            changePhotoLayout.setVisibility(View.VISIBLE);
 
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         } else {
@@ -132,6 +136,8 @@ public class ProfileFragment extends Fragment {
 
             ProfileService.setProfileData(getContext(), this, newProfileData);
             setProfileData(view);
+
+            changePhotoLayout.setVisibility(View.GONE);
 
             params.height = 0;
         }

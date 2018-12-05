@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="305dp">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
                     android:background="@drawable/gradientbackground"
@@ -35,7 +35,29 @@
                         android:contentDescription="avatar"
                         android:scaleType="centerCrop"
                         android:src="@drawable/avatar" />
-                </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/change_photo_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:background="@color/halfTransparentBlack">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_menu_camera"
+                            android:layout_marginTop="50dp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#CCFFFFFF"
+                            android:gravity="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:text="@string/change_photo"/>
+                    </LinearLayout>
+                </FrameLayout>
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="320dp"
