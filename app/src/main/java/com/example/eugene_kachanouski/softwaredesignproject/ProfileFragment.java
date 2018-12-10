@@ -14,8 +14,11 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +29,12 @@ import android.widget.ViewSwitcher;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -40,9 +47,15 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ProfileFragment extends Fragment {
 
+    String mCurrentPhotoPath;
+
     private OnFragmentInteractionListener mListener;
     private final int RESULT_LOAD_IMG = 1;
     private final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private final int PERMISSIONS_REQUEST_CAMERA = 2;
+    private final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 3;
+    private final int GALLERY = 1, CAMERA = 2;
+    Uri photoURI;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -95,11 +108,96 @@ public class ProfileFragment extends Fragment {
     private void setChangePhotoLayoutOnClickListener(View view) {
         view.findViewById(R.id.change_photo_layout).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+//                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//                photoPickerIntent.setType("image/*");
+//                startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+                showPictureDialog();
             }
         });
+    }
+
+    private void showPictureDialog() {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(getActivity());
+        pictureDialog.setTitle("Select Action");
+        String[] pictureDialogItems = {
+                "Select photo from gallery",
+                "Capture photo from camera"};
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                choosePhotoFromGallery();
+                                break;
+                            case 1:
+                                takePhotoFromCamera();
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
+    }
+
+    public void choosePhotoFromGallery() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        startActivityForResult(galleryIntent, GALLERY);
+    }
+
+    private void takePhotoFromCamera() {
+        Context context = getContext();
+        final Activity activity = getActivity();
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                    Manifest.permission.CAMERA)) {
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                dialogBuilder.setMessage("Please allow to use your camera");
+                dialogBuilder.setTitle("Allow permissions!");
+                dialogBuilder.setCancelable(false);
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{Manifest.permission.CAMERA},
+                                PERMISSIONS_REQUEST_CAMERA);
+                    }
+                });
+
+                dialogBuilder.show();
+            } else {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.CAMERA},
+                        PERMISSIONS_REQUEST_CAMERA);
+            }
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                dialogBuilder.setMessage("Please allow to write to your storage");
+                dialogBuilder.setTitle("Allow permissions!");
+                dialogBuilder.setCancelable(false);
+                dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    }
+                });
+
+                dialogBuilder.show();
+            } else {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+        } else {
+            dispatchTakePictureIntent();
+        }
     }
 
     private void setAvatarImage(View view) {
@@ -184,7 +282,7 @@ public class ProfileFragment extends Fragment {
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-                dialogBuilder.setMessage("Please allow read your images from gallery");
+                dialogBuilder.setMessage("Please allow to read your images from gallery");
                 dialogBuilder.setTitle("Allow permissions!");
                 dialogBuilder.setCancelable(false);
                 dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -217,12 +315,58 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
-        if (requestCode == RESULT_LOAD_IMG) {
+        if (requestCode == GALLERY) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
                 setAvatarImageURI(getView(), uri);
                 ProfileService.saveAvatarImageUri(getContext(), this, uri);
+            }
+        }
+
+        if (requestCode == CAMERA) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = photoURI;
+                setAvatarImageURI(getView(), uri);
+                ProfileService.saveAvatarImageUri(getContext(), this, uri);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(getActivity(),
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, CAMERA);
             }
         }
     }
