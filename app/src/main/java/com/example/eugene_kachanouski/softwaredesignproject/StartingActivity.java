@@ -1,5 +1,6 @@
 package com.example.eugene_kachanouski.softwaredesignproject;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,6 +21,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class StartingActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,6 +48,25 @@ public class StartingActivity extends AppCompatActivity
         NavigationUI.setupWithNavController(navigationView, navController);
         // TODO: Разобраться как это работает
 //        NavigationUI.setupActionBarWithNavController(this, navController, drawer);
+
+    }
+
+    private void fillNavHeader() {
+        ProfileData profileData = ProfileService.getProfileData(this);
+        ((TextView) findViewById(R.id.nav_user_name)).setText(profileData.firstName + ' ' + profileData.lastName);
+        ((TextView) findViewById(R.id.nav_user_email)).setText(profileData.email);
+
+        final Activity activity = this;
+
+        findViewById(R.id.nav_header).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NavController navController = Navigation.findNavController(activity, R.id.fragment);
+                navController.navigate(R.id.profileFragment);
+                DrawerLayout drawer = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        });
     }
 
     @Override
@@ -62,6 +83,7 @@ public class StartingActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.starting, menu);
+        fillNavHeader();
         return true;
     }
 
