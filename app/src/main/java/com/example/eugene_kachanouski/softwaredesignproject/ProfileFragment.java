@@ -56,6 +56,7 @@ public class ProfileFragment extends Fragment {
     private final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 3;
     private final int GALLERY = 1, CAMERA = 2;
     private Uri photoURI;
+    private boolean isEditableLayoutOn = false;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -76,6 +77,7 @@ public class ProfileFragment extends Fragment {
         setEditButtonOnClickListener(view);
         setChangePhotoLayoutOnClickListener(view);
         setAvatarImage(view);
+
         return view;
     }
 
@@ -94,6 +96,45 @@ public class ProfileFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outBundle) {
+        super.onSaveInstanceState(outBundle);
+
+        outBundle.putBoolean("isEditableLayoutOn", isEditableLayoutOn);
+        if (isEditableLayoutOn) {
+            View view = getView();
+            ProfileData profileData = getProfileDataFromEditableLayout(view);
+
+            outBundle.putString("firstName", profileData.firstName);
+            outBundle.putString("lastName", profileData.lastName);
+            outBundle.putString("email", profileData.email);
+            outBundle.putString("phone", profileData.phone);
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            isEditableLayoutOn = savedInstanceState.getBoolean("isEditableLayoutOn");
+
+            if (isEditableLayoutOn) {
+                ProfileData profileData = new ProfileData(
+                        savedInstanceState.getString("firstName"),
+                        savedInstanceState.getString("lastName"),
+                        savedInstanceState.getString("email"),
+                        savedInstanceState.getString("phone")
+                );
+
+                View view = getView();
+
+                setEditableLayout(view, true);
+                setEditableLayoutData(view, profileData);
+            }
+        }
     }
 
     private void setProfileData(View view) {
@@ -218,8 +259,6 @@ public class ProfileFragment extends Fragment {
                         setEditableLayout(fragmentView, true);
                         break;
                 }
-
-                viewSwitcher.showNext();
             }
         });
     }
@@ -232,34 +271,28 @@ public class ProfileFragment extends Fragment {
                         : ContextCompat.getDrawable(getContext(), R.drawable.ic_edit_black_24dp)
         );
 
-        EditText firstNameEditText = view.findViewById(R.id.first_name_edit_text);
-        EditText lastNameEditText = view.findViewById(R.id.last_name_edit_text);
-        EditText emailEditText = view.findViewById(R.id.email_edit_text);
-        EditText phoneEditText = view.findViewById(R.id.phone_edit_text);
-
         View profileDataEditLayout = view.findViewById(R.id.profile_data_edit_layout);
         ViewGroup.LayoutParams params = profileDataEditLayout.getLayoutParams();
 
         View changePhotoLayout = view.findViewById(R.id.change_photo_layout);
 
+        ViewSwitcher viewSwitcher = view.findViewById(R.id.profile_data_view_switcher);
+
+
         if (isOn) {
             ProfileData profileData = ProfileService.getProfileData();
 
-            firstNameEditText.setText(profileData.firstName);
-            lastNameEditText.setText(profileData.lastName);
-            emailEditText.setText(profileData.email);
-            phoneEditText.setText(profileData.phone);
+            setEditableLayoutData(view, profileData);
 
             changePhotoLayout.setVisibility(View.VISIBLE);
 
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+            if (viewSwitcher.getNextView().getId() == R.id.profile_data_edit_layout) {
+                viewSwitcher.showNext();
+            }
         } else {
-            ProfileData newProfileData = new ProfileData(
-                    firstNameEditText.getText().toString(),
-                    lastNameEditText.getText().toString(),
-                    emailEditText.getText().toString(),
-                    phoneEditText.getText().toString()
-            );
+            ProfileData newProfileData = getProfileDataFromEditableLayout(view);
 
             ProfileService.setProfileData(newProfileData);
 
@@ -268,9 +301,41 @@ public class ProfileFragment extends Fragment {
             changePhotoLayout.setVisibility(View.GONE);
 
             params.height = 0;
+
+            if (viewSwitcher.getNextView().getId() == R.id.profile_data_view_layout) {
+                viewSwitcher.showNext();
+            }
         }
 
+        isEditableLayoutOn = isOn;
+
         profileDataEditLayout.setLayoutParams(params);
+    }
+
+    private void setEditableLayoutData(View view, ProfileData profileData) {
+        EditText firstNameEditText = view.findViewById(R.id.first_name_edit_text);
+        EditText lastNameEditText = view.findViewById(R.id.last_name_edit_text);
+        EditText emailEditText = view.findViewById(R.id.email_edit_text);
+        EditText phoneEditText = view.findViewById(R.id.phone_edit_text);
+
+        firstNameEditText.setText(profileData.firstName);
+        lastNameEditText.setText(profileData.lastName);
+        emailEditText.setText(profileData.email);
+        phoneEditText.setText(profileData.phone);
+    }
+
+    private ProfileData getProfileDataFromEditableLayout(View view) {
+        EditText firstNameEditText = view.findViewById(R.id.first_name_edit_text);
+        EditText lastNameEditText = view.findViewById(R.id.last_name_edit_text);
+        EditText emailEditText = view.findViewById(R.id.email_edit_text);
+        EditText phoneEditText = view.findViewById(R.id.phone_edit_text);
+
+        return new ProfileData(
+                firstNameEditText.getText().toString(),
+                lastNameEditText.getText().toString(),
+                emailEditText.getText().toString(),
+                phoneEditText.getText().toString()
+        );
     }
 
     private void setAvatarImageURI(View view, Uri uri) {
