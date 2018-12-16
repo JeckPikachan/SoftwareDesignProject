@@ -16,6 +16,12 @@ public class ProfileService {
         }
     }
 
+    public static void resetCurrentProfile() {
+        ProfileService.currentProfile = new Profile("", "", "", "");
+        ProfileService.userId = null;
+        ProfileService.profileRef = null;
+    }
+
     public static void setUserId(String userId) {
         ProfileService.userId = userId;
     }

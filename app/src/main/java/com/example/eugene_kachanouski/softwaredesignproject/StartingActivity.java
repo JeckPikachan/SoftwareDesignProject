@@ -130,7 +130,6 @@ public class StartingActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.starting, menu);
         fillNavHeader();
-//        setSignOutOnClickListener();
         return true;
     }
 
@@ -147,17 +146,12 @@ public class StartingActivity extends AppCompatActivity
 
         if (item.getItemId() == R.id.sign_out) {
             mAuth.signOut();
-//            Toast.makeText(StartingActivity.this,  "Authentication failed.",
-//                    Toast.LENGTH_SHORT).show();
+            ProfileService.resetCurrentProfile();
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(i);
             finish();
             return true;
         }
-//
-//
-//        Toast.makeText(StartingActivity.this,  "Authentication suck.",
-//                Toast.LENGTH_SHORT).show();
 
         NavController navController = Navigation.findNavController(this, R.id.fragment);
         boolean navigated = NavigationUI.onNavDestinationSelected(item, navController);
@@ -165,7 +159,6 @@ public class StartingActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return navigated;
-//        return true;
     }
 
     
