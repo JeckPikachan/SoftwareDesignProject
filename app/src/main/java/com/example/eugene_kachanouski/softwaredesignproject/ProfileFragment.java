@@ -97,8 +97,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setProfileData(View view) {
-        Context context = getActivity();
-        ProfileData profileData = ProfileService.getProfileData(context);
+        ProfileData profileData = ProfileService.getProfileData();
 
         ((TextView) view.findViewById(R.id.fullNameTextView)).setText(profileData.firstName + ' ' + profileData.lastName);
         ((TextView) view.findViewById(R.id.emailTextView)).setText(profileData.email);
@@ -201,7 +200,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setAvatarImage(View view) {
-        setAvatarImageURI(view, ProfileService.getAvatarImageUri(getContext()));
+        setAvatarImageURI(view, ProfileService.getAvatarImageUri());
     }
 
     private void setEditButtonOnClickListener(View view) {
@@ -244,7 +243,7 @@ public class ProfileFragment extends Fragment {
         View changePhotoLayout = view.findViewById(R.id.change_photo_layout);
 
         if (isOn) {
-            ProfileData profileData = ProfileService.getProfileData(getContext());
+            ProfileData profileData = ProfileService.getProfileData();
 
             firstNameEditText.setText(profileData.firstName);
             lastNameEditText.setText(profileData.lastName);
@@ -262,7 +261,8 @@ public class ProfileFragment extends Fragment {
                     phoneEditText.getText().toString()
             );
 
-            ProfileService.setProfileData(getContext(), newProfileData);
+            ProfileService.setProfileData(newProfileData);
+
             setProfileData(view);
 
             changePhotoLayout.setVisibility(View.GONE);
@@ -320,7 +320,7 @@ public class ProfileFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
                 setAvatarImageURI(getView(), uri);
-                ProfileService.saveAvatarImageUri(getContext(), uri);
+                ProfileService.saveAvatarImageUri(uri);
             }
         }
 
@@ -328,7 +328,7 @@ public class ProfileFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 Uri uri = photoURI;
                 setAvatarImageURI(getView(), uri);
-                ProfileService.saveAvatarImageUri(getContext(), uri);
+                ProfileService.saveAvatarImageUri(uri);
             }
         }
     }
