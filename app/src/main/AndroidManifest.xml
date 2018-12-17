@@ -9,6 +9,7 @@ package="com.example.eugene_kachanouski.softwaredesignproject">
 <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 <uses-permission android:name="android.permission.READ_PROFILE" />
 <uses-permission android:name="android.permission.READ_CONTACTS" />
+<uses-permission android:name="android.permission.INTERNET" />
 
 <application
     android:allowBackup="true"
@@ -45,6 +46,7 @@ package="com.example.eugene_kachanouski.softwaredesignproject">
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
+    <activity android:name="com.example.eugene_kachanouski.softwaredesignproject.RssWebView"></activity>
 </application>
 
 </manifest>

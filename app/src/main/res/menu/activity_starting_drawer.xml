@@ -5,12 +5,12 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/musicFragment"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Music" />
+            android:id="@+id/newsFragment"
+            android:icon="@drawable/ic_dashboard_black_24dp"
+            android:title="News" />
         <item
             android:id="@+id/profileFragment"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_face_black_24dp"
             android:title="Profile" />
         <item
             android:id="@+id/someFragment"
@@ -18,21 +18,8 @@
             android:title="Some" />
         <item
             android:id="@+id/sign_out"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
             android:title="Sign out" />
     </group>
-
-    <!--<item android:title="Communicate">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_menu_share"-->
-                <!--android:title="Share" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_send"-->
-                <!--android:icon="@drawable/ic_menu_send"-->
-                <!--android:title="Send" />-->
-        <!--</menu>-->
-    <!--</item>-->
 
 </menu>

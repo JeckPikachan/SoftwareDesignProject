@@ -3,27 +3,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/musicFragment">
+    app:startDestination="@id/newsFragment">
 
-    <fragment
-        android:id="@+id/musicFragment"
-        android:name="com.example.eugene_kachanouski.softwaredesignproject.MusicFragment"
-        android:label="fragment_music"
-        tools:layout="@layout/fragment_music" ><deepLink app:uri="sdapp://by.eugene_kachanouski.sdproj/page/1" android:autoVerify="true"/></fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.eugene_kachanouski.softwaredesignproject.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" ><deepLink app:uri="sdapp://by.eugene_kachanouski.sdproj/page/4" android:autoVerify="true"/>
+        tools:layout="@layout/fragment_profile">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="sdapp://by.eugene_kachanouski.sdproj/page/4" />
     </fragment>
     <fragment
         android:id="@+id/someFragment"
         android:name="com.example.eugene_kachanouski.softwaredesignproject.SomeFragment"
         android:label="fragment_some"
-        tools:layout="@layout/fragment_some" ><deepLink app:uri="sdapp://by.eugene_kachanouski.sdproj/page/3" android:autoVerify="true"/></fragment>
+        tools:layout="@layout/fragment_some">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="sdapp://by.eugene_kachanouski.sdproj/page/3" />
+    </fragment>
     <fragment
         android:id="@+id/infoFragment"
         android:name="com.example.eugene_kachanouski.softwaredesignproject.InfoFragment"
         android:label="fragment_info"
-        tools:layout="@layout/fragment_info" ><deepLink app:uri="sdapp://by.eugene_kachanouski.sdproj/page/2" android:autoVerify="true"/></fragment>
+        tools:layout="@layout/fragment_info">
+        <deepLink
+            android:autoVerify="true"
+            app:uri="sdapp://by.eugene_kachanouski.sdproj/page/2" />
+    </fragment>
+    <fragment
+        android:id="@+id/newsFragment"
+        android:name="com.example.eugene_kachanouski.softwaredesignproject.NewsFragment"
+        android:label="fragment_news"
+        tools:layout="@layout/fragment_news" />
 </navigation>
