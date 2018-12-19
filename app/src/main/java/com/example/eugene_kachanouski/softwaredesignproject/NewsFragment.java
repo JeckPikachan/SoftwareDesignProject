@@ -36,7 +36,6 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
     private FeedsAdapter feedsAdapter;
     private RssReader rssReader;
     private ProgressDialog progressDialog;
-    private boolean loadedFromCache = false;
     FeedsAdapter.OnItemClickListener onItemClickListener;
 
     public NewsFragment() {
@@ -70,7 +69,8 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
         onItemClickListener = new FeedsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(FeedItem item) {
-                if (!loadedFromCache) {
+                boolean isConnected = checkInternetConnection();
+                if (isConnected) {
                     Intent intent = new Intent(getContext(), RssWebView.class);
                     intent.putExtra("URL", item.getLink());
                     startActivity(intent);
@@ -107,17 +107,23 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
     private void doRss(String address) {
         feedsAdapter = new FeedsAdapter(getContext(), new ArrayList<FeedItem>(), onItemClickListener);
         recyclerView.setAdapter(feedsAdapter);
+
+        boolean isConnected = checkInternetConnection();
+        if (isConnected) {
+            loadRssFromTheInternet(address);
+        } else {
+            loadRssFromCache();
+        }
+    }
+
+    private boolean checkInternetConnection() {
         ConnectivityManager cm =
                 (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null &&
                 activeNetwork.isConnected();
-        if (isConnected) {
-            loadRssFromTheInternet(address);
-        } else {
-            loadRssFromCache();
-        }
+        return isConnected;
     }
 
     private void loadRssFromTheInternet(String address){
@@ -129,7 +135,6 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
     }
 
     private void loadRssFromCache() {
-        loadedFromCache = true;
         ArrayList<FeedItem> items = CacheRepository.getInstance().readRssCache(getContext(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid());
         feedsAdapter.setFeedItems(items);
