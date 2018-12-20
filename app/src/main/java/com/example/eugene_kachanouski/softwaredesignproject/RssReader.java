@@ -166,6 +166,7 @@ public class RssReader extends AsyncTask<Void, Void, Void> {
                         if (matcher.matches()) {
                             String str = matcher.toMatchResult().group();
                         }
+                        content = content.replaceAll("<[^>]*>", "");
                         feedItem.setDescription(content);
                     }
                 }
