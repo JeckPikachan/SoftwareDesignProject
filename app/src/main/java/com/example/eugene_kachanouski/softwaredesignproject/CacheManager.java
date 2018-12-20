@@ -18,16 +18,16 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CacheRepository {
-    private static CacheRepository instance;
+public class CacheManager {
+    private static CacheManager instance;
 
-    private CacheRepository() {
+    private CacheManager() {
 
     }
 
-    public static CacheRepository getInstance() {
+    public static CacheManager getInstance() {
         if (instance == null) {
-            instance = new CacheRepository();
+            instance = new CacheManager();
         }
         return instance;
     }
@@ -83,7 +83,6 @@ public class CacheRepository {
             return  cacheFile;
         }
         try {
-            //TODO: clear cache
             cacheFile.createNewFile();
         } catch (IOException e) {
             // Error while creating file
@@ -100,19 +99,5 @@ public class CacheRepository {
 
     public void removeCacheForUser(Context context, String userUid) {
         removeTempFile(context, userUid);
-    }
-
-    class JsonFeedItemsAdapter {
-        public List<FeedItem> getFeedItems() {
-            return feedItems;
-        }
-
-        public void setFeedItems(List<FeedItem> feedItems) {
-            this.feedItems = feedItems;
-        }
-
-        @SerializedName("feedItems")
-        @Expose
-        private List<FeedItem> feedItems;
     }
 }

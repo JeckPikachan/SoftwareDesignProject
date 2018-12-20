@@ -140,7 +140,6 @@ public class StartingActivity extends AppCompatActivity
         return navigated || super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 

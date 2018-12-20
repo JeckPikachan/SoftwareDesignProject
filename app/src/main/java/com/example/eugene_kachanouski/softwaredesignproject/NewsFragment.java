@@ -88,7 +88,7 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
         if (lastUserId == null){
             askToInputNewUrl(getString(R.string.welcome_to_rss));
         } else if (!lastUserId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            CacheRepository.getInstance().removeCacheForUser(getContext(), lastUserId);
+            CacheManager.getInstance().removeCacheForUser(getContext(), lastUserId);
             askToInputNewUrl(getString(R.string.welcome_to_rss));
         } else {
             doRss(rssUrl);
@@ -153,7 +153,7 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
     }
 
     private void loadRssFromCache() {
-        ArrayList<FeedItem> items = CacheRepository.getInstance().readRssCache(getContext(),
+        ArrayList<FeedItem> items = CacheManager.getInstance().readRssCache(getContext(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid());
         feedsAdapter.setFeedItems(items);
         Toast.makeText(getContext(), R.string.feed_loaded_from_cache, Toast.LENGTH_SHORT).show();
@@ -263,7 +263,7 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
                 Toast.makeText(getContext(), R.string.feed_loaded, Toast.LENGTH_LONG).show();
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 setLastUserUidPreference(uid);
-                CacheRepository.getInstance().writeRssToCache(getContext(), feedsAdapter.getFeedItems(), uid);
+                CacheManager.getInstance().writeRssToCache(getContext(), feedsAdapter.getFeedItems(), uid);
             }
         });
 
