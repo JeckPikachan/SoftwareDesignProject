@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,7 +46,7 @@ import static android.app.Activity.RESULT_OK;
  * {@link ProfileFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements ProfileListener {
 
     String mCurrentPhotoPath;
 
@@ -66,6 +67,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ProfileService.setProfileListener(this);
     }
 
     @Override
@@ -135,6 +137,44 @@ public class ProfileFragment extends Fragment {
                 setEditableLayoutData(view, profileData);
             }
         }
+    }
+
+    @Override
+    public void onFailedUpdateProfile() {
+        Toast.makeText(getContext() , "Failed to update profile", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSucceededUpdateProfile() {
+
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        if (isEditableLayoutOn) {
+            ProfileData profileData = getProfileDataFromEditableLayout(getView());
+            ProfileService.setTemporaryProfileData(profileData);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Save changes?");
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    ProfileService.resetTemporaryProfileData();
+                }
+            });
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    ProfileService.updateProfileFromTemporaryProfileData();
+                }
+            });
+
+            builder.show();
+        }
+
+        super.onDestroyView();
     }
 
     private void setProfileData(View view) {

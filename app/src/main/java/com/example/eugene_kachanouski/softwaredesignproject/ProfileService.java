@@ -2,18 +2,41 @@ package com.example.eugene_kachanouski.softwaredesignproject;
 
 import android.net.Uri;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
+
+import androidx.annotation.NonNull;
 
 public class ProfileService {
 
     private static Profile currentProfile = new Profile("", "", "", "");
     private static DatabaseReference profileRef;
     private static String userId;
+    private static ProfileListener profileListener;
+    private static ProfileData temporaryProfile;
 
     public static void setCurrentProfile(Profile profile) {
         if (profile != null) {
             ProfileService.currentProfile = profile;
         }
+    }
+
+    public static void setTemporaryProfileData(ProfileData temporaryProfile) {
+        ProfileService.temporaryProfile = temporaryProfile;
+    }
+
+    public static void resetTemporaryProfileData() {
+        ProfileService.temporaryProfile = null;
+    }
+
+    public static void updateProfileFromTemporaryProfileData() {
+        ProfileService.setProfileData(ProfileService.temporaryProfile);
+        ProfileService.resetTemporaryProfileData();
+    }
+
+    public static void setProfileListener(ProfileListener profileListener) {
+        ProfileService.profileListener = profileListener;
     }
 
     public static void resetCurrentProfile() {
@@ -46,7 +69,23 @@ public class ProfileService {
         ProfileService.currentProfile.setEmail(profileData.email);
         ProfileService.currentProfile.setPhone(profileData.phone);
 
-        ProfileService.profileRef.child(ProfileService.userId == null ? "" : ProfileService.userId).setValue(ProfileService.currentProfile);
+        ProfileService.profileRef.child(ProfileService.userId == null ? "" : ProfileService.userId).setValue(ProfileService.currentProfile)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if (ProfileService.profileListener != null) {
+                            ProfileService.profileListener.onSucceededUpdateProfile();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (ProfileService.profileListener != null) {
+                            ProfileService.profileListener.onFailedUpdateProfile();
+                        }
+                    }
+                });
     }
 
     public static void saveAvatarImageUri(Uri uri) {
