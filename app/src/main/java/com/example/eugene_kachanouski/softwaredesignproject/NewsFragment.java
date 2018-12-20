@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoadedListener, RssReader.OnItemsLoadedListener, OnProgressListener {
 
@@ -37,6 +38,8 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
     private RssReader rssReader;
     private ProgressDialog progressDialog;
     FeedsAdapter.OnItemClickListener onItemClickListener;
+    SwipeRefreshLayout mSwipeLayout;
+    boolean isRefresh = false;
 
     public NewsFragment() {
         // Required empty public constructor
@@ -81,7 +84,7 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
         };
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         String lastUserId = sharedPref.getString(getString(R.string.preference_last_userId), null);
-        String rssUrl = sharedPref.getString(getString(R.string.preference_rssUrl), null);
+        final String rssUrl = sharedPref.getString(getString(R.string.preference_rssUrl), null);
         if (lastUserId == null){
             askToInputNewUrl(getString(R.string.welcome_to_rss));
         } else if (!lastUserId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
@@ -90,6 +93,21 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
         } else {
             doRss(rssUrl);
         }
+
+        mSwipeLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
+
+        mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                isRefresh = true;
+                boolean isConnected = checkInternetConnection();
+                if (isConnected) {
+                    loadRssFromTheInternet(rssUrl);
+                } else {
+                    loadRssFromCache();
+                }
+            }
+        });
     }
 
 
@@ -139,6 +157,10 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
                 FirebaseAuth.getInstance().getCurrentUser().getUid());
         feedsAdapter.setFeedItems(items);
         Toast.makeText(getContext(), R.string.feed_loaded_from_cache, Toast.LENGTH_SHORT).show();
+        if (mSwipeLayout != null) {
+            mSwipeLayout.setRefreshing(false);
+            isRefresh = false;
+        }
     }
 
     private void askToInputNewUrl(String title) {
@@ -269,18 +291,30 @@ public class NewsFragment extends Fragment implements RssReader.OnFeedItemLoaded
 
     @Override
     public void onProgressStarted() {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(getContext());
+        if (!isRefresh) {
+            if (progressDialog == null) {
+                progressDialog = new ProgressDialog(getContext());
+            }
+            progressDialog.show();
+            progressDialog.setMessage(getString(R.string.loading));
+            progressDialog.setCancelable(false);
         }
-        progressDialog.show();
-        progressDialog.setMessage(getString(R.string.loading));
-        progressDialog.setCancelable(false);
+        if (mSwipeLayout != null) {
+            mSwipeLayout.setRefreshing(true);
+        }
     }
 
     @Override
     public void onProgressEnded() {
-        if (progressDialog != null) {
-            progressDialog.hide();
+        if (!isRefresh) {
+            if (progressDialog != null) {
+                progressDialog.hide();
+            }
+        }
+
+        if (mSwipeLayout != null) {
+            mSwipeLayout.setRefreshing(false);
+            isRefresh = false;
         }
     }
 
